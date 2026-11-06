@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bé Học Màu Sắc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2563EB; --on-primary: #fff;
+    --accent: #F59E0B; --on-accent: #0F172A;
+    --ok: #16A34A; --bad: #DC2626;
+    --bg: #EFF6FF; --fg: #0F172A; --card: #fff; --muted: #475569; --border: #DBE5F7;
+    --shadow: 0 6px 0 #C7D6F2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0B1226; --fg: #F1F5F9; --card: #16213D; --muted: #A9B6CC; --border: #2A3A60; --shadow: 0 6px 0 #070C1A; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 16px;
+    font-family: "Baloo 2", system-ui, sans-serif; color: var(--fg); background: var(--bg);
+    background-image:
+      radial-gradient(circle at 8% 12%, #F8717133 0 80px, transparent 81px),
+      radial-gradient(circle at 92% 18%, #FACC1533 0 110px, transparent 111px),
+      radial-gradient(circle at 85% 90%, #4ADE8033 0 90px, transparent 91px),
+      radial-gradient(circle at 10% 85%, #A78BFA33 0 120px, transparent 121px);
+  }
+  .card {
+    width: min(560px, 100%); background: var(--card); border: 3px solid var(--border);
+    border-radius: 28px; padding: 28px 24px; box-shadow: var(--shadow); text-align: center;
+  }
+  h1 { font-size: clamp(2rem, 7vw, 2.8rem); line-height: 1.1; margin: 8px 0 4px; }
+  h1 span:nth-child(1){color:#EF4444} h1 span:nth-child(2){color:#F59E0B} h1 span:nth-child(3){color:#22C55E}
+  h1 span:nth-child(4){color:#3B82F6} h1 span:nth-child(5){color:#A855F7}
+  p { color: var(--muted); font-size: 1.15rem; margin: 4px 0 20px; }
+  .dots { display: flex; justify-content: center; gap: 10px; margin: 8px 0 20px; }
+  .dots i { width: 28px; height: 28px; border-radius: 50%; animation: bob 1.6s ease-in-out infinite; }
+  .dots i:nth-child(2){animation-delay:.15s} .dots i:nth-child(3){animation-delay:.3s} .dots i:nth-child(4){animation-delay:.45s} .dots i:nth-child(5){animation-delay:.6s}
+  @keyframes bob { 50% { transform: translateY(-10px); } }
+
+  button { font: inherit; cursor: pointer; border: none; }
+  button:focus-visible { outline: 4px solid var(--primary); outline-offset: 3px; }
+  .btn {
+    min-height: 56px; padding: 10px 32px; border-radius: 18px; font-size: 1.35rem; font-weight: 800;
+    background: var(--accent); color: var(--on-accent); box-shadow: 0 5px 0 #B45309;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #B45309; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 700; font-size: 1.1rem; }
+  .bar { height: 14px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 10px 0 18px; }
+  .bar div { height: 100%; width: 0; background: linear-gradient(90deg, #22C55E, #3B82F6, #A855F7); border-radius: 99px; transition: width .4s ease; }
+  .replay {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 6px 14px; border-radius: 14px;
+    background: var(--primary); color: var(--on-primary); font-weight: 700; font-size: 1rem;
+  }
+  .replay svg { width: 22px; height: 22px; }
+  .question { font-size: clamp(1.5rem, 5.5vw, 2rem); font-weight: 800; line-height: 1.25; margin: 4px 0 16px; }
+  .swatch { width: 160px; height: 160px; margin: 0 auto 22px; border-radius: 32px; border: 4px solid var(--border); animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+
+  .answers { display: grid; gap: 14px; }
+  .answers.colors { grid-template-columns: repeat(3, 1fr); }
+  .ans {
+    min-height: 64px; border-radius: 20px; font-size: 1.45rem; font-weight: 700; color: var(--fg);
+    background: var(--card); border: 3px solid var(--border); box-shadow: 0 5px 0 var(--border);
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .answers.colors .ans { aspect-ratio: 1; border-width: 4px; }
+  .ans:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-2px); }
+  .ans:disabled { cursor: default; }
+  .ans.correct { border-color: var(--ok); box-shadow: 0 0 0 5px #16A34A55; animation: win .5s; }
+  .ans.wrong { border-color: var(--bad); box-shadow: 0 0 0 5px #DC262655; animation: shake .4s; }
+  .ans.correct::after { content: " ✓"; color: var(--ok); }
+  .answers.colors .ans.correct::after, .answers.colors .ans.wrong::after { content: ""; }
+  @keyframes win { 50% { transform: scale(1.08); } }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  .feedback { min-height: 40px; margin-top: 16px; font-size: 1.4rem; font-weight: 800; }
+  .feedback.ok { color: var(--ok); } .feedback.bad { color: var(--bad); }
+
+  .score { font-size: 4.5rem; font-weight: 800; line-height: 1; color: var(--primary); margin: 10px 0; }
+  .stars { font-size: 2.6rem; letter-spacing: 6px; color: var(--accent); }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="card">
+  <section id="start">
+    <div class="dots" aria-hidden="true">
+      <i style="background:#EF4444"></i><i style="background:#F59E0B"></i><i style="background:#22C55E"></i><i style="background:#3B82F6"></i><i style="background:#A855F7"></i>
+    </div>
+    <h1><span>Bé</span> <span>Học</span> <span>Màu</span> <span>Sắc</span> <span>!</span></h1>
+    <p>10 câu hỏi vui — bật loa để nghe cô đọc câu hỏi nhé</p>
+    <button class="btn" id="startBtn">Bắt đầu</button>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="top">
+      <span id="count">Câu 1/10</span>
+      <button class="replay" id="replayBtn" aria-label="Nghe lại câu hỏi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+        Nghe lại
+      </button>
+      <span id="points">⭐ 0</span>
+    </div>
+    <div class="bar" aria-hidden="true"><div id="progress"></div></div>
+    <div class="question" id="qText"></div>
+    <div class="swatch" id="swatch" aria-hidden="true"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+  </section>
+
+  <section id="result" hidden>
+    <h1><span>Giỏi</span> <span>quá</span><span>!</span></h1>
+    <div class="score" id="finalScore"></div>
+    <div class="stars" id="stars" aria-hidden="true"></div>
+    <p id="resultMsg"></p>
+    <button class="btn" id="againBtn">Chơi lại</button>
+  </section>
+</main>
+
+<script>
+const C = { "Đỏ":"#EF4444", "Vàng":"#FACC15", "Xanh lá":"#22C55E", "Xanh dương":"#3B82F6", "Cam":"#F97316",
+            "Tím":"#A855F7", "Hồng":"#F472B6", "Nâu":"#92400E", "Đen":"#111827", "Trắng":"#FFFFFF", "Xám":"#9CA3AF" };
+
+// type "name": show a swatch, pick the name. type "pick": read a name, pick the swatch.
+const QUESTIONS = [
+  { type: "name", color: "Đỏ",        q: "Đây là màu gì?",                 options: ["Đỏ", "Xanh dương", "Vàng"] },
+  { type: "pick", color: "Vàng",      q: "Bé hãy chọn màu vàng nhé!",      options: ["Tím", "Vàng", "Xanh lá"] },
+  { type: "name", color: "Xanh lá",   q: "Lá cây có màu gì?",              options: ["Tím", "Cam", "Xanh lá"] },
+  { type: "pick", color: "Xanh dương",q: "Đâu là màu xanh dương?",         options: ["Xanh dương", "Đỏ", "Hồng"] },
+  { type: "name", color: "Cam",       q: "Quả cam có màu gì?",             options: ["Hồng", "Cam", "Nâu"] },
+  { type: "pick", color: "Tím",       q: "Bé hãy chọn màu tím nhé!",       options: ["Xanh lá", "Vàng", "Tím"] },
+  { type: "name", color: "Hồng",      q: "Đây là màu gì?",                 options: ["Hồng", "Đỏ", "Trắng"] },
+  { type: "pick", color: "Nâu",       q: "Đâu là màu nâu?",                options: ["Cam", "Nâu", "Đen"] },
+  { type: "name", color: "Đen",       q: "Bầu trời ban đêm có màu gì?",    options: ["Xám", "Xanh dương", "Đen"] },
+  { type: "pick", color: "Trắng",     q: "Đám mây có màu gì? Bé chọn nhé!",options: ["Trắng", "Xám", "Vàng"] },
+];
+// self-check: 10 questions, 3 options each, exactly one correct, all colors known
+console.assert(QUESTIONS.length === 10, "need 10 questions");
+QUESTIONS.forEach((x, i) => console.assert(
+  x.options.length === 3 && x.options.filter(o => o === x.color).length === 1 && x.options.every(o => o in C),
+  `question ${i + 1} is malformed`));
+
+const $ = id => document.getElementById(id);
+let idx = 0, score = 0, audio;
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "vi-VN"; u.rate = 0.9; u.pitch = 1.1;
+  const vi = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith("vi"));
+  if (vi) u.voice = vi;
+  speechSynthesis.speak(u);
+}
+
+// Sounds are synthesized so the page ships with no audio files.
+function tone(freq, start, dur, type, vol) {
+  const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + start;
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(audio.destination); o.start(t); o.stop(t + dur);
+}
+const ting = () => { tone(1318, 0, 0.6, "sine", 0.35); tone(1976, 0.08, 0.7, "sine", 0.25); };
+const buzz = () => { tone(110, 0, 0.45, "sawtooth", 0.25); tone(116, 0, 0.45, "square", 0.15); };
+
+function show(id) { ["start", "quiz", "result"].forEach(s => $(s).hidden = s !== id); }
+
+function render() {
+  const q = QUESTIONS[idx];
+  $("count").textContent = `Câu ${idx + 1}/10`;
+  $("points").textContent = `⭐ ${score}`;
+  $("progress").style.width = `${idx * 10}%`;
+  $("qText").textContent = q.q;
+  $("feedback").textContent = ""; $("feedback").className = "feedback";
+  const sw = $("swatch");
+  sw.hidden = q.type !== "name";
+  sw.style.background = C[q.color];
+  sw.style.animation = "none"; sw.offsetWidth; sw.style.animation = "";
+  const box = $("answers");
+  box.className = "answers" + (q.type === "pick" ? " colors" : "");
+  box.replaceChildren(...q.options.map(name => {
+    const b = document.createElement("button");
+    b.className = "ans";
+    if (q.type === "pick") { b.style.background = C[name]; b.setAttribute("aria-label", `Màu ${name.toLowerCase()}`); }
+    else b.textContent = name;
+    b.onclick = () => answer(b, name);
+    return b;
+  }));
+  const spoken = q.type === "name" ? `${q.q} ${q.options.join(", ")}` : q.q;
+  speak(spoken);
+}
+
+function answer(btn, name) {
+  const q = QUESTIONS[idx], right = name === q.color;
+  $("answers").querySelectorAll("button").forEach(b => b.disabled = true);
+  btn.classList.add(right ? "correct" : "wrong");
+  if (right) { score++; ting(); $("feedback").textContent = "Đúng rồi! Bé giỏi quá!"; $("feedback").classList.add("ok"); }
+  else {
+    buzz();
+    const i = q.options.indexOf(q.color);
+    $("answers").children[i].classList.add("correct");
+    $("feedback").textContent = `Chưa đúng rồi, đó là màu ${q.color.toLowerCase()}`; $("feedback").classList.add("bad");
+  }
+  $("points").textContent = `⭐ ${score}`;
+  window.speechSynthesis?.cancel();
+  setTimeout(() => { idx++; idx < QUESTIONS.length ? render() : finish(); }, 1800);
+}
+
+function finish() {
+  $("progress").style.width = "100%";
+  show("result");
+  $("finalScore").textContent = `${score}/10`;
+  const s = score >= 9 ? 3 : score >= 6 ? 2 : 1;
+  $("stars").textContent = "★".repeat(s) + "☆".repeat(3 - s);
+  const msg = score === 10 ? "Tuyệt vời! Bé biết hết các màu rồi!" : score >= 6 ? "Bé làm tốt lắm! Chơi lại để được 10 điểm nhé!" : "Cố lên nào! Mình cùng chơi lại nhé!";
+  $("resultMsg").textContent = msg;
+  speak(`Bé được ${score} điểm. ${msg}`);
+  $("againBtn").focus();
+}
+
+function start() {
+  // AudioContext and speech must start from a click (browser autoplay rules).
+  audio ??= new (window.AudioContext || window.webkitAudioContext)();
+  audio.resume();
+  idx = 0; score = 0;
+  show("quiz"); render();
+}
+
+$("startBtn").onclick = start;
+$("againBtn").onclick = start;
+$("replayBtn").onclick = () => { const q = QUESTIONS[idx]; speak(q.type === "name" ? `${q.q} ${q.options.join(", ")}` : q.q); };
+window.speechSynthesis?.getVoices(); // warm up voice list
+</script>
+</body>
+</html>
