@@ -153,11 +153,19 @@ function speak(text) {
   if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = "vi-VN"; u.rate = 0.9; u.pitch = 1.1;
-  const vi = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith("vi"));
-  if (vi) u.voice = vi;
+  u.lang = "vi-VN";
+  viVoice ??= pickVoice();
+  if (viVoice) u.voice = viVoice;
   speechSynthesis.speak(u);
 }
+
+// Chrome fills the voice list asynchronously; without a vi voice it reads Vietnamese with an English one.
+let viVoice = null;
+function pickVoice() {
+  const vi = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().replace("_", "-").startsWith("vi"));
+  return vi.find(v => /google/i.test(v.name)) || vi[0] || null;
+}
+if ("speechSynthesis" in window) speechSynthesis.addEventListener("voiceschanged", () => viVoice = pickVoice());
 
 // Sounds are synthesized so the page ships with no audio files.
 function tone(freq, start, dur, type, vol) {
