@@ -147,7 +147,7 @@ QUESTIONS.forEach((x, i) => console.assert(
   `question ${i + 1} is malformed`));
 
 const $ = id => document.getElementById(id);
-let idx = 0, score = 0, audio;
+let idx = 0, score = 0;
 
 // Pre-recorded neural voice (gen_audio.py); browser TTS only if the file can't play.
 let clip = new Audio();
@@ -179,15 +179,11 @@ function pickVoice() {
 }
 if ("speechSynthesis" in window) speechSynthesis.addEventListener("voiceschanged", () => viVoice = pickVoice());
 
-// Sounds are synthesized so the page ships with no audio files.
-function tone(freq, start, dur, type, vol) {
-  const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + start;
-  o.type = type; o.frequency.setValueAtTime(freq, t);
-  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g).connect(audio.destination); o.start(t); o.stop(t + dur);
-}
-const ting = () => { tone(1318, 0, 0.6, "sine", 0.35); tone(1976, 0.08, 0.7, "sine", 0.25); };
-const buzz = () => { tone(110, 0, 0.45, "sawtooth", 0.25); tone(116, 0, 0.45, "square", 0.15); };
+// ting/buzz are files (gen_sfx.py): Web Audio tones were too quiet/low for laptop speakers.
+const sfx = { ting: new Audio("audio/ting.wav"), buzz: new Audio("audio/buzz.wav") };
+const play = name => { const a = sfx[name]; a.currentTime = 0; a.play().catch(() => {}); };
+const ting = () => play("ting");
+const buzz = () => play("buzz");
 
 function show(id) { ["start", "quiz", "result"].forEach(s => $(s).hidden = s !== id); }
 
@@ -244,9 +240,6 @@ function finish() {
 }
 
 function start() {
-  // AudioContext and speech must start from a click (browser autoplay rules).
-  audio ??= new (window.AudioContext || window.webkitAudioContext)();
-  audio.resume();
   idx = 0; score = 0;
   show("quiz"); render();
 }
