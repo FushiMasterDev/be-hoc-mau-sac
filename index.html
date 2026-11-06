@@ -149,6 +149,18 @@ QUESTIONS.forEach((x, i) => console.assert(
 const $ = id => document.getElementById(id);
 let idx = 0, score = 0, audio;
 
+// Pre-recorded neural voice (gen_audio.py); browser TTS only if the file can't play.
+let clip = new Audio();
+function say(name, text) {
+  clip.pause();
+  window.speechSynthesis?.cancel();
+  clip = new Audio(`audio/${name}.mp3`);
+  clip.play().catch(() => speak(text));
+}
+const questionText = q => q.type === "name" ? `${q.q} ${q.options.join(", ")}` : q.q;
+// keep in sync with gen_audio.py
+const resultMessage = s => s === 10 ? "Tuyệt vời! Bé biết hết các màu rồi!" : s >= 6 ? "Bé làm tốt lắm! Chơi lại để được 10 điểm nhé!" : "Cố lên nào! Mình cùng chơi lại nhé!";
+
 function speak(text) {
   if (!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
@@ -200,8 +212,7 @@ function render() {
     b.onclick = () => answer(b, name);
     return b;
   }));
-  const spoken = q.type === "name" ? `${q.q} ${q.options.join(", ")}` : q.q;
-  speak(spoken);
+  say(`q${idx + 1}`, questionText(q));
 }
 
 function answer(btn, name) {
@@ -216,7 +227,7 @@ function answer(btn, name) {
     $("feedback").textContent = `Chưa đúng rồi, đó là màu ${q.color.toLowerCase()}`; $("feedback").classList.add("bad");
   }
   $("points").textContent = `⭐ ${score}`;
-  window.speechSynthesis?.cancel();
+  clip.pause(); window.speechSynthesis?.cancel();
   setTimeout(() => { idx++; idx < QUESTIONS.length ? render() : finish(); }, 1800);
 }
 
@@ -226,9 +237,9 @@ function finish() {
   $("finalScore").textContent = `${score}/10`;
   const s = score >= 9 ? 3 : score >= 6 ? 2 : 1;
   $("stars").textContent = "★".repeat(s) + "☆".repeat(3 - s);
-  const msg = score === 10 ? "Tuyệt vời! Bé biết hết các màu rồi!" : score >= 6 ? "Bé làm tốt lắm! Chơi lại để được 10 điểm nhé!" : "Cố lên nào! Mình cùng chơi lại nhé!";
+  const msg = resultMessage(score);
   $("resultMsg").textContent = msg;
-  speak(`Bé được ${score} điểm. ${msg}`);
+  say(`r${score}`, `Bé được ${score} điểm. ${msg}`);
   $("againBtn").focus();
 }
 
@@ -242,7 +253,7 @@ function start() {
 
 $("startBtn").onclick = start;
 $("againBtn").onclick = start;
-$("replayBtn").onclick = () => { const q = QUESTIONS[idx]; speak(q.type === "name" ? `${q.q} ${q.options.join(", ")}` : q.q); };
+$("replayBtn").onclick = () => { say(`q${idx + 1}`, questionText(QUESTIONS[idx])); };
 window.speechSynthesis?.getVoices(); // warm up voice list
 </script>
 </body>
