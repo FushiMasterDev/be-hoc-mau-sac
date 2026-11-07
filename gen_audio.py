@@ -10,11 +10,11 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 html = open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
 
 texts = {}
-rows = re.findall(r'type: "(\w+)".*?q: "([^"]+)",\s*options: \[([^\]]+)\]', html)
+rows = re.findall(r'q: "([^"]+)",\s*options: \[([^\]]+)\]', html)
 assert len(rows) == 10, f"expected 10 questions, found {len(rows)}"
-for i, (kind, q, opts) in enumerate(rows, 1):
-    options = re.findall(r'"([^"]+)"', opts)
-    texts[f"q{i}"] = f"{q} {', '.join(options)}" if kind == "name" else q
+for i, (q, opts) in enumerate(rows, 1):
+    # keep in sync with questionText() in index.html
+    texts[f"q{i}"] = f"{q} {', '.join(re.findall(r'"([^"]+)"', opts))}"
 
 # keep in sync with resultMessage() in index.html
 for s in range(11):
