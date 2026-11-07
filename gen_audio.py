@@ -9,7 +9,7 @@ CTX = ssl.create_default_context(cafile="/etc/ssl/cert.pem" if os.path.exists("/
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # page -> (audioDir, readOptions); keep in sync with window.GAME in each page
-PAGES = {"index.html": ("audio/mau", True), "nhan-biet-qua.html": ("audio/qua", False)}
+PAGES = {"index.html": ("audio", True)}
 
 texts = {}
 for page, (folder, read_options) in PAGES.items():

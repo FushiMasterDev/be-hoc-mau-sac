@@ -78,4 +78,3 @@ button:focus-visible { outline: 4px solid var(--primary); outline-offset: 3px; }
 .answers.pics { grid-template-columns: repeat(3, 1fr); }
 .answers.pics .ans { aspect-ratio: 1; padding: 0; font-size: clamp(48px, 16vw, 84px); }
 .answers.pics .ans.correct::after { content: none; }
-.other { display: inline-flex; align-items: center; min-height: 44px; margin-top: 18px; padding: 8px 12px; font-weight: 700; font-size: 1.1rem; color: var(--primary); }
